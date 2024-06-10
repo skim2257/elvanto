@@ -1,19 +1,37 @@
 import os, json
 import pandas as pd
-from elvanto import ElvantoQuery
+from elvanto import Flows, parser
 from dotenv import load_dotenv
 from urllib.parse import urljoin
 
-load_dotenv(".env")
+def main():
+    load_dotenv(".env")
 
-elv = ElvantoQuery(os.getenv('ELVANTO_KEY'), sub_api="peopleFlows/")
-url = urljoin(elv.base_url, "getAll")
+    # args = parser()
 
-# for i in range(1000): # ASSUMPTION: max 1,000,000 groups
-    # payload = {"page": i+1,
-    #             "page_size": 1000, #1000 is max. If we have more than 1000 CGs, we need to add a for loop to parse all pages.
-    #             "fields": fields}
-groups = elv.post(url) #, payload=payload)
-with open("db/people_flows.json", "w") as f:
-    json.dump(groups.json(), f, indent=4)
+    flo = Flows(key=os.getenv('ELVANTO_KEY'),
+                csv_path="db/flows.csv")
+    
+    onboarding_flows = [flo.flows_df[flo.flows_df.name == name].index.values[0] for name in flo.flows_df.name if "TEAM ONBOARDING" in name]
+    everyone = pd.DataFrame()
 
+    for flow_id in onboarding_flows:
+        steps = flo.get_flow_steps(flow_id)
+        for step in steps:
+            people = flo.get_step_people(step)
+            pdf = pd.DataFrame.from_dict(people, orient='index')
+            for col in steps[step]:
+                val = steps[step][col]
+                if val is isinstance(val, str):
+                    pdf[col] = val
+                else:
+                    pdf[col] = str(val)
+            everyone = pd.concat([everyone, pdf])
+        break
+
+    everyone.to_csv("exports/Every_Person_In_People_Flows.csv")
+    # with open("db/people.json", "w") as f:
+    # json.dump(elv.people, f, indent=4)
+
+if __name__ == "__main__":  
+    main()

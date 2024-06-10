@@ -24,11 +24,5 @@ def main():
     df.sort_values(by=['name'], inplace=True)
     df.to_csv("search_results.csv")    
 
-    # for i in groups:
-    #     print(i)
-    #     info = elv.get_group_info(groups[i])
-    #     print(info)
-    #     break
-
 if __name__ == "__main__":  
     main()

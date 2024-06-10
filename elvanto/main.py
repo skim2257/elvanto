@@ -20,7 +20,7 @@ class ElvantoQuery():
             Elvanto user id?
         datatype : str
             Data type to return from API. Default is JSON.
-        groups_csv : str
+        csv_path : str
             Path to csv file containing group ids. If not provided, will retrieve all groups from Elvanto API.  
         """
         self.key = key

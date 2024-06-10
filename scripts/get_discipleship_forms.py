@@ -5,6 +5,8 @@ import json
 import os
 from tqdm import tqdm
 
+season = "2024 Winter"
+
 def nice_name(name: str):
     names = name.split(' ')
     new_name = ""
@@ -17,9 +19,9 @@ def nice_name(name: str):
     return new_name
 
 def main():
-    forms = DiscipleshipForms(self_path="exports/Form-Submissions_Leader-Self-Assessment-Form-2023_2023-12-13.csv", \
-                              coach_path="exports/Form-Submissions_Coach-Discipleship-Form-2023_2023-12-13.csv", \
-                              heads_path="exports/Form-Submissions_Head-Coach-Discipleship-Form-2023_2023-12-13.csv", \
+    forms = DiscipleshipForms(self_path="exports/Form-Submissions_Leader-Self-Assessment-Form-2024_2024-05-05.csv", \
+                              coach_path="exports/Form-Submissions_Coach-Discipleship-Form-2024_2024-05-05.csv", \
+                              heads_path="exports/Form-Submissions_Head-Coach-Discipleship-Form-2024_2024-05-05.csv", \
                               verbose=False)
     forms.filter_date(start="2023-11-01")
 
@@ -31,7 +33,6 @@ def main():
     print("Starting HEAD COACHES now...")
     with open("db/hc_tree.json", "r") as f:
         hc_tree = json.load(f)
-        # NOTE: added BRIAN MAHER to ANNIE & BRIAN MAHER's tree, for Brian's coach forms to show up
 
     for head in tqdm(hc_tree):
         df_self = pd.DataFrame()
@@ -54,7 +55,7 @@ def main():
         if not os.path.exists(hc_path):
             os.makedirs(hc_path)
 
-        with pd.ExcelWriter(os.path.join(hc_path, f'{nice_name(head)} - 2023 Fall.xlsx')) as w:  
+        with pd.ExcelWriter(os.path.join(hc_path, f'{nice_name(head)} - {season}.xlsx')) as w:  
             df_self.to_excel(w, sheet_name='Leader Self Assessments')
             df_coach.to_excel(w, sheet_name='Coach Reports')
             df_heads.to_excel(w, sheet_name='Head Coach Reports')
@@ -85,7 +86,7 @@ def main():
         if not os.path.exists(coach_path):
             os.makedirs(coach_path)
             
-        with pd.ExcelWriter(os.path.join(coach_path, f'{nice_name(coach)} - 2023 Fall.xlsx')) as w:  
+        with pd.ExcelWriter(os.path.join(coach_path, f'{nice_name(coach)} - {season}.xlsx')) as w:  
             df_self.to_excel(w, sheet_name='Lead Self Assessments')
             df_coach.to_excel(w, sheet_name='Coach Reports')
 

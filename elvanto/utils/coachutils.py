@@ -43,6 +43,8 @@ def get_names(name_unclean):
         names = name_unclean.split(" & ")
     elif " AND " in name_unclean:
         names = name_unclean.split(" AND ")
+    elif " +" in name_unclean:
+        names = name_unclean.split(" + ")
     else:
         names = [name_unclean.strip()]
     
@@ -54,7 +56,10 @@ def get_names(name_unclean):
             last = full_name.split()[1]
             other_name = names[0] + " " + last
             names = [full_name, other_name]
-    
+        # if 2 in counts and sum(counts) == 4:
+        #     print(names)
+        #     names = [names[0] + " " + names[1], names[2] + " " + names[3]]
+
     return names
 
 
@@ -71,9 +76,8 @@ def update_safe(coaches, name_unclean, parents, children):
     for name in names:
         coaches[name] = search_coach(coaches, name, parents, children)
 
-
 def vacuum(name):
-    return name.upper().strip()
+    return name.upper().replace("(NEW)", "").strip()
 
 
 def search_coach(coaches, name, parents, children):
@@ -86,12 +90,13 @@ def search_coach(coaches, name, parents, children):
 def get_subidxs(df):
     """ 
     different parsing for HC tables vs Coach tables
-    this should eventually be deprecated to backend managed, 
+    this should eventually be deprecated to be managed in the back, 
     but for now i'll pretend to monka and parse like this
     """
-    idxs = df[df.eq("NOTES / IF MOVING TO ANOTHER GROUP NOTE NEW HC/COACH").any(axis=1)].index
-    if len(idxs) < 1: 
-        idxs = df[df.eq("Discipleship Forms Complete Fall 2023").any(axis=1)].index
+    idxs = df[(df.eq("REMAIN IN GROUP?").any(axis=1)) | (df.eq("Remain in Group").any(axis=1))].index
+    # # backup parsing
+    # if len(idxs) < 1: 
+    #     idxs = df[df.eq("REMAIN IN GROUP?").any(axis=1)].index
     
     return idxs
 
@@ -105,15 +110,15 @@ def parse_coaches(dfs: list):
     coaches = {}
     for n, df_focus in enumerate(dfs):
         idxs = get_subidxs(df_focus).tolist()
-        idxs.append(-1)
-        print(len(idxs))
+        idxs.append(-1) # for subindexing the last coach group 
+        print(n, len(idxs))
         for n, idx in enumerate(idxs):
             if n == len(idxs) - 1:
                 break
 
             # grab all rows between prev_idx and idx
             df_c = df_focus.iloc[idx:idxs[n+1]]
-            print('\n', n, df_c)
+            # print('\n', n, df_c)
 
             # only grab list of names
             names = [vacuum(i) for i in df_c[2].dropna().tolist() if i != '']

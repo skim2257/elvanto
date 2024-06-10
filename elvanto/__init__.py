@@ -6,4 +6,5 @@ from .people import *
 from .services import *
 from .coach import *
 from .form import *
+from .flows import *
 # from groups import *
