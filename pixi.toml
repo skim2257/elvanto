@@ -4,10 +4,11 @@ version = "1.0.0"
 description = "Add a short description here"
 authors = ["Sejin Kim <hello@sejin.kim>"]
 channels = ["conda-forge"]
-platforms = ["win-64", "linux-64", "osx-arm64"]
+platforms = ["win-64", "linux-64", "osx-arm64", "linux-arm64"]
 
 [tasks]
 postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
+flows       = "python ./scripts/get_people_flows.py"
 
 [dependencies]
 python = "3.10.*"
@@ -19,3 +20,4 @@ python-dotenv = ">=1.0.1,<1.1"
 pip = ">=24.0,<25"
 tqdm = ">=4.66.4,<4.67"
 joblib = ">=1.4.2,<1.5"
+openpyxl = ">=3.1.4,<3.2"
