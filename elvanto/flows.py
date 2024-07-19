@@ -81,13 +81,18 @@ class Flows(ElvantoQuery):
         return NotImplementedError
 
     def get_steps(self,
-                  steps: list):
+                  steps: list,
+                  prio_prefix: str=""):
         all_steps = {}
         for step in steps:
             children = step.pop("steps")
+
+            # adds prefix of previous step priority for nested steps
+            if prio_prefix is not "":
+                step["priority"] = prio_prefix + "." + step["priority"]
             all_steps[step["id"]] = step
             if len(children) > 0:
-                all_steps = {**all_steps, **self.get_steps(children)}
+                all_steps = {**all_steps, **self.get_steps(children, prio_prefix=step['priority'])}
 
         return all_steps
 

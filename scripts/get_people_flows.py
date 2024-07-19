@@ -17,7 +17,7 @@ def main():
     onboarding_flows = [flo.flows_df[flo.flows_df.name == name].index.values[0] for name in flo.flows_df.name if "TEAM ONBOARDING" in name]
     everyone  = pd.DataFrame()
     locations = ["DOWNTOWN", "MIDTOWN", "HAMILTON"]
-    columns   = ["flow_name", "member_firstname", "member_lastname", "date_added", "step_name", "location"]
+    columns   = ["flow_name", "member_firstname", "member_lastname", "date_added", "step_name", "location", "step_priority", "status", "completed_date"]
 
     def get_one_flow(flow_id):
         single_flow = pd.DataFrame()
@@ -50,21 +50,26 @@ def main():
         
         return single_flow
 
-    
+
+    # Output one flow for debugging    
+    # print(get_one_flow(onboarding_flows[0]))
+
     all_flows   = Parallel(n_jobs=-1, verbose=10)(delayed(get_one_flow)(flow_id) for flow_id in tqdm(onboarding_flows))
-    everyone    = pd.concat(all_flows)[columns]
+    everyone    = pd.concat(all_flows)#[columns]
     everyone['date_added']      = pd.to_datetime(everyone['date_added'])
     everyone['time_elapsed']    = pd.Timestamp.now() - everyone['date_added']
     everyone['days_elapsed']    = everyone['time_elapsed'].dt.total_seconds() / (3600 * 24)
 
-    with pd.ExcelWriter("exports/People_Flows_by_Location.xlsx") as w:  
-        for location in locations:
-            everyone[everyone.location == location].to_excel(w, sheet_name=location)
+    # with pd.ExcelWriter("exports/People_Flows_by_Location_New.xlsx") as w:  
+    #     for location in locations:
+    #         everyone[everyone.location == location].to_excel(w, sheet_name=location)
         
-        all_location_regex = "|".join(locations)
-        everyone[~everyone.location.str.contains(all_location_regex)].to_excel(w, sheet_name="GENERAL")
+    #     all_location_regex = "|".join(locations)
+    #     everyone[~everyone.location.str.contains(all_location_regex)].to_excel(w, sheet_name="GENERAL")
 
-    everyone.to_csv("exports/People_Flows_Everybody_Everywhere_AllAtOnce.csv")
+    import datetime as dt
+    today = dt.datetime.today().strftime("%Y%m%d-%H%M%p%Z")
+    everyone.to_csv(f"exports/people_flows/{today}.csv")
 
 
 if __name__ == "__main__":  

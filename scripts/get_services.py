@@ -7,9 +7,11 @@ def main():
 
     # args = parser()
 
-    # start_date="2023-01-01"
-    # end_date="2023-12-31"
-    elv = Services(key=os.getenv('ELVANTO_KEY'))
+    start_date="2023-01-01"
+    end_date="2024-12-31"
+    elv = Services(key=os.getenv('ELVANTO_KEY'),
+                   start_date=start_date,
+                   end_date=end_date)
     # services = elv.get_services()
     elv.services_df   = elv.parse_services(elv.services)
     elv.teams_df      = elv.parse_teams(elv.volunteers)

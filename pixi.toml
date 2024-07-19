@@ -4,11 +4,17 @@ version = "1.0.0"
 description = "Add a short description here"
 authors = ["Sejin Kim <hello@sejin.kim>"]
 channels = ["conda-forge"]
-platforms = ["win-64", "linux-64", "osx-arm64", "linux-arm64"]
+platforms = ["win-64", "linux-64", "osx-arm64", "linux-aarch64"]
 
 [tasks]
 postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-check -e ."
-flows       = "python ./scripts/get_people_flows.py"
+services    = "python scripts/get_services.py"
+people      = "python scripts/get_people.py"
+pull        = { depends-on = ["people", "services"] }
+flows       = { cmd = ["python", "scripts/get_people_flows.py"], 
+                depends-on = ["people"] }
+teams       = { cmd = ["python", "scripts/get_team_stats.py"], 
+                depends-on = ["pull"] } 
 
 [dependencies]
 python = "3.10.*"
@@ -21,3 +27,4 @@ pip = ">=24.0,<25"
 tqdm = ">=4.66.4,<4.67"
 joblib = ">=1.4.2,<1.5"
 openpyxl = ">=3.1.4,<3.2"
+notebook = ">=7.2.1,<7.3"
